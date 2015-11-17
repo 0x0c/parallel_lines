@@ -4,6 +4,7 @@
 #include <vector>
 #include <functional>
 #include <mutex>
+#include <condition_variable>
 
 namespace parallel_lines
 {
@@ -12,33 +13,13 @@ namespace parallel_lines
 	private:
 		std::mutex mutex;
 		std::vector<std::function<void()>> functions;
+		std::condition_variable	cond;
 	public:
 		scheduler() {};
 		~scheduler() {};
-		void update() {
-			if (!this->functions.empty()) {
-				this->mutex.lock();
-				for (int i = 0; i < this->functions.size(); ++i) {
-					this->functions[i]();
-				}
-				this->functions.clear();
-				this->mutex.unlock();
-			}
-		}
+		void update();
+		void push(std::function<void()> func);
 
-		void push(std::function<void()> func) {
-			this->mutex.lock();
-			this->functions.push_back(func);
-			this->mutex.unlock();
-		}
+		static parallel_lines::scheduler* shared_scheduler();
 	};
-
-	static parallel_lines::scheduler *shared_instance = nullptr;
-
-	static parallel_lines::scheduler* shared_scheduler() {
-		if (shared_instance == nullptr) {
-			shared_instance = new parallel_lines::scheduler();
-		}
-		return shared_instance;
-	}
 }

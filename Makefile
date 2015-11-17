@@ -1,7 +1,7 @@
 CC = clang++ -std=c++11
 
 all:
-	$(CC) -g main.cpp
+	$(CC) -g parallel_lines.cpp main.cpp
 
 test:
 
